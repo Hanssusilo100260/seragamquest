@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seragam Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef2f7; --surface:#ffffff; --ink:#15202e; --muted:#5b6478;
+    --navy:#1b2a4a; --navy-ink:#ffffff; --gold:#c08a2e; --gold-soft:#f3e3c2;
+    --good:#2f8f5b; --good-soft:#e3f4ea; --bad:#c23b3b; --bad-soft:#fbe6e6;
+    --border:#d7dde6; --pip-off:#d7dde6;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1420; --surface:#171d2b; --ink:#eef2f7; --muted:#8b93a7;
+      --navy:#3d5a94; --navy-ink:#eef2f7; --gold:#d9ad55; --gold-soft:#3a3221;
+      --good:#4fb97c; --good-soft:#163828; --bad:#e2685f; --bad-soft:#3a1c1c;
+      --border:#2a3348; --pip-off:#2a3348;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1420; --surface:#171d2b; --ink:#eef2f7; --muted:#8b93a7;
+    --navy:#3d5a94; --navy-ink:#eef2f7; --gold:#d9ad55; --gold-soft:#3a3221;
+    --good:#4fb97c; --good-soft:#163828; --bad:#e2685f; --bad-soft:#3a1c1c;
+    --border:#2a3348; --pip-off:#2a3348;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body::before{
+    content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px);
+    background:var(--navy); z-index:10;
+  }
+  h1,h2,.display{ font-family:"Fraunces",Georgia,"Times New Roman",serif; }
+  .wrap{ max-width:440px; margin:0 auto; padding:0 16px 32px; }
+
+  .hud{
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:9;
+    background:var(--navy); color:var(--navy-ink);
+    border-radius:0 0 18px 18px; padding:10px 18px 12px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    box-shadow:0 4px 14px rgba(0,0,0,.18);
+  }
+  .hud .brand{ font-family:"Fraunces",Georgia,serif; font-weight:700; font-size:1.05rem; }
+  .hud .stat{ font-size:.82rem; opacity:.9; }
+  .pips{ display:flex; gap:4px; margin-top:2px; }
+  .pip{ width:9px; height:9px; border-radius:2px; background:var(--pip-off); }
+  .pip.on{ background:#f3d9a0; }
+
+  #jumpscare{
+    position:fixed; inset:0; z-index:50; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; color:#fff;
+    background:#b91c1c; animation: jsflash .22s steps(1) infinite, jsshake .18s infinite;
+  }
+  #jumpscare .jumpscare-icon{ font-size:4.2rem; }
+  #jumpscare .jumpscare-text{ font-family:"Fraunces",Georgia,serif; font-weight:700; font-size:1.5rem; margin-top:10px; line-height:1.3; }
+  @keyframes jsflash{ 0%,100%{ background:#b91c1c; } 50%{ background:#1a1a1a; } }
+  @keyframes jsshake{ 0%{ transform:translate(0,0); } 25%{ transform:translate(-6px,3px); } 50%{ transform:translate(6px,-3px); } 75%{ transform:translate(-4px,-4px); } 100%{ transform:translate(0,0); } }
+
+  .mission{ margin-top:22px; }
+  .mission .eyebrow{ color:var(--muted); font-size:.92rem; margin:0 0 2px; }
+  .mission h1{ font-size:1.5rem; margin:0 0 14px; line-height:1.25; }
+
+  .cat{
+    background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--navy);
+    border-radius:4px 10px 10px 4px; padding:14px 16px; margin-bottom:14px; transition:border-color .2s;
+  }
+  .cat.correct{ border-left-color:var(--good); background:var(--good-soft); }
+  .cat.wrong{ border-left-color:var(--bad); background:var(--bad-soft); }
+  .cat .label{ font-weight:600; font-size:1rem; margin-bottom:10px; }
+  .opts{ display:flex; gap:8px; flex-wrap:wrap; }
+  .opt{
+    flex:1 1 auto; min-width:120px; padding:10px 12px; border-radius:8px;
+    border:1px solid var(--border); background:var(--bg); color:var(--ink);
+    font-size:.9rem; text-align:left; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  .opt.picked{ border-color:var(--navy); background:var(--gold-soft); font-weight:600; }
+  .opt:disabled{ cursor:default; opacity:.75; }
+  .result-note{ margin-top:10px; font-size:.86rem; }
+  .result-note.good{ color:var(--good); } .result-note.bad{ color:var(--bad); }
+
+  .cta{
+    width:100%; padding:13px; border:none; border-radius:10px;
+    background:var(--navy); color:var(--navy-ink); font-size:1rem; font-weight:600;
+    cursor:pointer; margin-top:10px;
+  }
+  .cta:disabled{ opacity:.45; cursor:default; }
+
+  .center{ text-align:center; padding-top:8%; }
+  .center p{ color:var(--muted); line-height:1.5; }
+  .hidden{ display:none !important; }
+
+  .hist-box{ margin-top:26px; text-align:left; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+  .hist-title{ margin:0 0 8px; font-weight:600; font-size:.9rem; color:var(--muted); }
+  .hist-list{ list-style:none; margin:0; padding:0; font-size:.88rem; }
+  .hist-list li{ padding:5px 0; border-top:1px solid var(--border); }
+  .hist-list li:first-child{ border-top:none; }
+  .hist-empty{ color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="hud" id="hud">
+  <div class="brand">👔 Seragam Quest</div>
+  <div style="text-align:right">
+    <div class="stat" id="hud-day">Hari ke 0</div>
+    <div class="stat">Skor <strong id="hud-score">0</strong></div>
+  </div>
+  <div style="text-align:right">
+    <div class="stat">Nyawa</div>
+    <div class="pips" id="hud-pips"></div>
+  </div>
+</div>
+
+<div id="jumpscare" class="hidden">
+  <div class="jumpscare-icon">🚨</div>
+  <div class="jumpscare-text">KETAHUAN!<br>Razia Mendadak</div>
+</div>
+
+<div class="wrap">
+
+  <div id="start" class="center">
+    <h1 class="display">Rawat Ketertiban,<br>Mulai dari Seragam</h1>
+    <p>Jawab satu per satu: pilih atribut seragam yang benar sesuai hari sekolah. Kalau ada yang salah dalam satu hari, nyawamu berkurang — habiskan 3 nyawa dan permainan berakhir.</p>
+    <p id="today-line" style="color:var(--muted);font-size:.88rem;"></p>
+    <p id="best-line" class="hidden" style="color:var(--gold);font-weight:600;"></p>
+    <button class="cta hidden" id="resume-btn" onclick="resumeGame()">Lanjutkan Permainan</button>
+    <button class="cta" id="new-btn" onclick="newGame()">Mulai Main</button>
+    <div class="hist-box">
+      <p class="hist-title">Riwayat Terakhir</p>
+      <ul class="hist-list" id="history-list-start"></ul>
+    </div>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="mission">
+      <p class="eyebrow" id="q-progress">Pertanyaan 1 dari 1</p>
+      <h1 id="day-name">—</h1>
+    </div>
+    <div id="question-card" class="cat"></div>
+    <button class="cta hidden" id="next-btn" onclick="nextStep()">Pertanyaan Berikutnya</button>
+  </div>
+
+  <div id="over" class="center hidden">
+    <h1 class="display">Game Over</h1>
+    <p>Kamu bertahan <strong id="over-days">0</strong> hari dengan skor <strong id="over-score">0</strong>.</p>
+    <p id="over-best" style="color:var(--gold);font-weight:600;"></p>
+    <button class="cta" onclick="newGame()">Main Lagi</button>
+    <div class="hist-box">
+      <p class="hist-title">Riwayat Terakhir</p>
+      <ul class="hist-list" id="history-list-over"></ul>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DAYS = [
+  { name: "Senin — Baju Putih Lengkap", cats: [
+    { key:"baju", label:"Baju", opts:[["Baju putih",true],["Baju warna lain",false]] },
+    { key:"celana", label:"Celana", opts:[["Celana putih",true],["Celana warna lain",false]] },
+    { key:"badge", label:"Badge", opts:[["Badge lengkap",true],["Badge tidak lengkap",false]] },
+    { key:"dasi", label:"Dasi", opts:[["Dasi dipakai rapi",true],["Tidak pakai dasi",false]] },
+    { key:"gesper", label:"Gesper", opts:[["Pakai gesper",true],["Tanpa gesper",false]] },
+    { key:"sepatu", label:"Sepatu", opts:[["Sepatu hitam",true],["Sepatu warna lain",false]] },
+  ]},
+  { name: "Selasa — Baju Praktek", cats: [
+    { key:"baju", label:"Baju", opts:[["Baju praktek merah",true],["Baju lain",false]] },
+    { key:"celana", label:"Celana", opts:[["Celana hitam",true],["Celana warna lain",false]] },
+    { key:"gesper", label:"Gesper", opts:[["Pakai gesper",true],["Tanpa gesper",false]] },
+    { key:"kaoskaki", label:"Kaos kaki", opts:[["Kaos kaki putih",true],["Kaos kaki warna lain",false]] },
+    { key:"sepatu", label:"Sepatu", opts:[["Sepatu hitam",true],["Sepatu warna lain",false]] },
+  ]},
+  { name: "Rabu — Seragam Pramuka", cats: [
+    { key:"baju", label:"Baju", opts:[["Baju pramuka",true],["Baju lain",false]] },
+    { key:"celana", label:"Celana", opts:[["Celana pramuka",true],["Celana lain",false]] },
+    { key:"gesper", label:"Gesper", opts:[["Pakai gesper",true],["Tanpa gesper",false]] },
+    { key:"kaoskaki", label:"Kaos kaki", opts:[["Kaos kaki pramuka",true],["Kaos kaki lain",false]] },
+    { key:"sepatu", label:"Sepatu", opts:[["Sepatu hitam",true],["Sepatu warna lain",false]] },
+  ]},
+  { name: "Kamis — Batik Sekolah", cats: [
+    { key:"baju", label:"Baju", opts:[["Batik Kamis sekolah",true],["Baju lain",false]] },
+    { key:"celana", label:"Celana", opts:[["Celana putih",true],["Celana warna lain",false]] },
+    { key:"gesper", label:"Gesper", opts:[["Pakai gesper",true],["Tanpa gesper",false]] },
+    { key:"kaoskaki", label:"Kaos kaki", opts:[["Kaos kaki putih",true],["Kaos kaki warna lain",false]] },
+    { key:"sepatu", label:"Sepatu", opts:[["Sepatu hitam",true],["Sepatu warna lain",false]] },
+  ]},
+  { name: "Jumat — Baju Koko", cats: [
+    { key:"baju", label:"Baju", opts:[["Baju koko sekolah",true],["Baju lain",false]] },
+    { key:"celana", label:"Celana", opts:[["Celana abu-abu SMK",true],["Celana warna lain",false]] },
+    { key:"gesper", label:"Gesper", opts:[["Pakai gesper",true],["Tanpa gesper",false]] },
+    { key:"kaoskaki", label:"Kaos kaki", opts:[["Kaos kaki putih",true],["Kaos kaki warna lain",false]] },
+    { key:"sepatu", label:"Sepatu", opts:[["Sepatu hitam",true],["Sepatu warna lain",false]] },
+  ]},
+];
+const PUNISH = [
+  "Dipanggil guru piket, ulang misi hari ini!",
+  "Kena misi bersihin halaman sekolah dulu.",
+  "Poin hari ini dikurangi karena melanggar aturan.",
+];
+const WEEKDAY_NAMES = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+
+function getWeekdayIndex(){
+  const d = new Date().getDay();
+  return (d>=1 && d<=5) ? d-1 : 0;
+}
+function playSiren(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type='square';
+    const now = ctx.currentTime;
+    for(let i=0;i<4;i++){
+      o.frequency.setValueAtTime(600, now+i*0.22);
+      o.frequency.linearRampToValueAtTime(900, now+i*0.22+0.11);
+      o.frequency.linearRampToValueAtTime(600, now+i*0.22+0.22);
+    }
+    g.gain.setValueAtTime(0.25, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now+0.9);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(now); o.stop(now+0.9);
+  }catch(e){}
+}
+
+let score=0, lives=3, dayCount=0, dayIdx=0, qIndex=0, day=null, dayAnyWrong=false, locked=false;
+
+function store(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function load(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+
+function saveState(answered, chosenIdx){
+  try{
+    const data = { score, lives, dayCount, dayIdx, qIndex, dayAnyWrong, answered, chosenIdx };
+    localStorage.setItem('seragamquest_save', JSON.stringify(data));
+  }catch(e){}
+}
+function loadSave(){
+  try{ const raw = localStorage.getItem('seragamquest_save'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
+}
+function clearSave(){ try{ localStorage.removeItem('seragamquest_save'); }catch(e){} }
+
+function loadHistoryList(){ try{ return JSON.parse(localStorage.getItem('seragamquest_history')||'[]'); }catch(e){ return []; } }
+function pushHistoryEntry(s, d){
+  try{
+    const list = loadHistoryList();
+    list.unshift({ score:s, days:d, ts: Date.now() });
+    while(list.length>5) list.pop();
+    localStorage.setItem('seragamquest_history', JSON.stringify(list));
+  }catch(e){}
+}
+function renderHistory(){
+  const list = loadHistoryList();
+  ['history-list-start','history-list-over'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(list.length===0){ el.innerHTML = '<li class="hist-empty">Belum ada riwayat.</li>'; return; }
+    el.innerHTML = list.map(h=>{
+      const dt = new Date(h.ts).toLocaleDateString('id-ID', {day:'numeric',month:'short'});
+      return '<li>' + dt + ' — skor ' + h.score + ', streak ' + h.days + ' hari</li>';
+    }).join('');
+  });
+}
+
+function showScreen(name){
+  document.getElementById('start').classList.add('hidden');
+  document.getElementById('game').classList.add('hidden');
+  document.getElementById('over').classList.add('hidden');
+  document.getElementById(name).classList.remove('hidden');
+}
+
+function newGame(){
+  score=0; lives=3; dayCount=0; dayIdx=getWeekdayIndex();
+  clearSave();
+  showScreen('game');
+  pickDay(false);
+}
+
+function resumeGame(){
+  const s = loadSave();
+  if(!s){ newGame(); return; }
+  score=s.score; lives=s.lives; dayCount=s.dayCount; dayIdx=s.dayIdx; qIndex=s.qIndex; dayAnyWrong=s.dayAnyWrong;
+  day = DAYS[dayIdx];
+  showScreen('game');
+  renderQuestion();
+  if(s.answered && s.chosenIdx!=null){
+    const cat = day.cats[qIndex];
+    paintAnswer(s.chosenIdx, cat.opts[s.chosenIdx]);
+    const isLast = qIndex === day.cats.length - 1;
+    const nb = document.getElementById('next-btn');
+    nb.textContent = isLast ? 'Lanjut ke Hari Berikutnya' : 'Pertanyaan Berikutnya';
+    nb.classList.remove('hidden');
+    locked = true;
+  }
+  updateHud();
+}
+
+function pickDay(advance){
+  if(advance) dayIdx = (dayIdx+1) % DAYS.length;
+  day = DAYS[dayIdx];
+  qIndex = 0; dayAnyWrong = false; dayCount++;
+  renderQuestion();
+  updateHud();
+  saveState(false, null);
+}
+
+function renderQuestion(){
+  const cat = day.cats[qIndex];
+  document.getElementById('q-progress').textContent = 'Pertanyaan ' + (qIndex+1) + ' dari ' + day.cats.length;
+  document.getElementById('day-name').textContent = day.name;
+  const card = document.getElementById('question-card');
+  card.className = 'cat';
+  let html = '<div class="label">' + cat.label + '</div><div class="opts">';
+  cat.opts.forEach((o,i)=>{ html += '<button class="opt" onclick="selectOpt(' + i + ')">' + o[0] + '</button>'; });
+  html += '</div><div class="result-note" id="q-note"></div>';
+  card.innerHTML = html;
+  document.getElementById('next-btn').classList.add('hidden');
+  locked = false;
+}
+
+function selectOpt(idx){
+  if(locked) return;
+  locked = true;
+  const cat = day.cats[qIndex];
+  const opt = cat.opts[idx];
+  paintAnswer(idx, opt);
+  if(opt[1]){ score += 10; } else { dayAnyWrong = true; }
+  updateHud();
+  const isLast = qIndex === day.cats.length - 1;
+  const nb = document.getElementById('next-btn');
+  nb.textContent = isLast ? 'Lanjut ke Hari Berikutnya' : 'Pertanyaan Berikutnya';
+  nb.classList.remove('hidden');
+  saveState(true, idx);
+}
+
+function paintAnswer(idx, opt){
+  const card = document.getElementById('question-card');
+  card.querySelectorAll('.opt').forEach((b,i)=>{ b.disabled = true; if(i===idx) b.classList.add('picked'); });
+  const note = document.getElementById('q-note');
+  if(opt[1]){
+    card.classList.add('correct');
+    note.textContent = '✓ Sesuai aturan, +10 skor';
+    note.className = 'result-note good';
+  } else {
+    card.classList.add('wrong');
+    const p = PUNISH[Math.floor(Math.random()*PUNISH.length)];
+    note.textContent = '✗ Tidak sesuai — ' + p;
+    note.className = 'result-note bad';
+  }
+}
+
+function nextStep(){
+  if(qIndex < day.cats.length - 1){
+    qIndex++;
+    renderQuestion();
+    saveState(false, null);
+  } else {
+    if(dayAnyWrong) lives -= 1;
+    updateHud();
+    if(lives<=0){
+      clearSave();
+      setTimeout(triggerJumpscare, 400);
+    } else {
+      pickDay(true);
+    }
+  }
+}
+
+function triggerJumpscare(){
+  const js = document.getElementById('jumpscare');
+  js.classList.remove('hidden');
+  playSiren();
+  setTimeout(()=>{ js.classList.add('hidden'); finishGame(); }, 900);
+}
+
+function finishGame(){
+  clearSave();
+  pushHistoryEntry(score, dayCount);
+  showScreen('over');
+  document.getElementById('over-days').textContent = dayCount;
+  document.getElementById('over-score').textContent = score;
+  const best = parseInt(load('seragamquest_best')||'0',10);
+  if(score > best){ store('seragamquest_best', String(score)); document.getElementById('over-best').textContent = 'Rekor baru! 🏆'; }
+  else { document.getElementById('over-best').textContent = 'Rekor terbaik: ' + best; }
+  renderHistory();
+}
+
+function updateHud(){
+  document.getElementById('hud-day').textContent = 'Hari ke ' + dayCount;
+  document.getElementById('hud-score').textContent = score;
+  const pips = document.getElementById('hud-pips');
+  pips.innerHTML = '';
+  for(let i=0;i<3;i++){
+    const d = document.createElement('div');
+    d.className = 'pip' + (i < lives ? ' on' : '');
+    pips.appendChild(d);
+  }
+}
+
+(function init(){
+  const best = parseInt(load('seragamquest_best')||'0',10);
+  if(best>0){
+    const bl = document.getElementById('best-line');
+    bl.textContent = 'Rekor terbaikmu: ' + best + ' skor';
+    bl.classList.remove('hidden');
+  }
+  const realDay = new Date().getDay();
+  const tl = document.getElementById('today-line');
+  if(tl){
+    tl.textContent = (realDay===0 || realDay===6)
+      ? 'Hari ini ' + WEEKDAY_NAMES[realDay] + ' (libur) — game dimulai dari Senin.'
+      : 'Hari ini ' + WEEKDAY_NAMES[realDay] + ' — game dimulai dari hari ini.';
+  }
+  const saved = loadSave();
+  if(saved){
+    document.getElementById('resume-btn').classList.remove('hidden');
+    document.getElementById('new-btn').textContent = 'Mulai Baru';
+  }
+  renderHistory();
+  updateHud();
+})();
+</script>
+</body>
+</html>
