@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Seragam Quest - Budaya Tertib Sekolah</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#0B1935',
+                        navy2: '#122B55',
+                        cream: '#FFF6E5',
+                        paper: '#FFFDF8',
+                        redAcc: '#E4574F',
+                        yellowAcc: '#F5C85B',
+                        mintAcc: '#71C9A8',
+                        ink: '#18233D',
+                        muted: '#70809B'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0B1935;
+            color: #FFFDF8;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-bounce {
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease;
+        }
+        .btn-bounce:active {
+            transform: scale(0.96);
+        }
+
+        .bg-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+            background-size: 18px 18px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.05); }
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        @keyframes jumpscareShake {
+            0% { transform: translate(0, 0) scale(1); }
+            15% { transform: translate(-12px, 8px) scale(1.15); filter: hue-rotate(90deg) brightness(1.2); }
+            30% { transform: translate(12px, -8px) scale(1.2); }
+            45% { transform: translate(-10px, -6px) scale(1.15); }
+            60% { transform: translate(10px, 6px) scale(1.1); }
+            75% { transform: translate(-5px, 3px) scale(1.05); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        .animate-jumpscare {
+            animation: jumpscareShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B1935;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #122B55;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-navy min-h-screen flex flex-col justify-between max-w-md mx-auto relative overflow-x-hidden border-x border-slate-800 shadow-2xl bg-pattern">
+
+    <div class="h-2 w-full flex relative z-20">
+        <div class="h-full w-2/3 bg-redAcc"></div>
+        <div class="h-full w-1/3 bg-yellowAcc"></div>
+    </div>
+
+    <main id="app" class="flex-1 flex flex-col p-4 relative z-10">
+    </main>
+
+    <footer class="p-3 text-center text-[10px] text-slate-400 border-t border-slate-800/80 bg-navy/90 backdrop-blur flex items-center justify-between">
+        <span>SERAGAMKU IDENTITASKU &bull; PBP Fase E</span>
+        <div class="flex items-center space-x-2">
+            <button id="bgmToggleBtn" onclick="toggleAudio()" class="text-xs text-yellowAcc px-2 py-0.5 bg-navy2 rounded border border-slate-700 flex items-center space-x-1">
+                <i id="bgmIcon" class="fa-solid fa-volume-high"></i>
+                <span id="bgmLabel">BGM</span>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        const ROUNDS = [
+            {
+                day: "SENIN • UPACARA BENDERA",
+                title: "Pagi Senin di Lapangan",
+                prompt: "Atribut mana yang paling tepat untuk mengikuti upacara bendera?",
+                hint: "Ingat kelengkapan upacara resmi sebelum bel masuk berbunyi.",
+                options: [
+                    { name: "Paket Upacara Lengkap", items: "Putih abu + dasi + topi + ikat pinggang hitam + sepatu hitam", correct: true },
+                    { name: "Paket Santai Harian", items: "Putih abu + tanpa dasi + sneakers warna-warni", correct: false },
+                    { name: "Paket Olahraga", items: "Baju olahraga + celana training + kaos kaki putih", correct: false }
+                ],
+                why: "Untuk upacara bendera, wajib mengenakan seragam putih abu-abu lengkap dengan dasi, topi sekolah, ikat pinggang, serta sepatu hitam polos."
+            },
+            {
+                day: "SELASA • HARI BIASA",
+                title: "Masuk Kelas Tepat Waktu",
+                prompt: "Pilih kombinasi seragam harian yang paling tertib dan rapi.",
+                hint: "Atribut kecil seperti lokasi badge dan dasi tetap menentukan ketertiban.",
+                options: [
+                    { name: "Harian Rapi & Tertib", items: "Putih abu lengkap + dasi + kaos kaki putih + sepatu hitam", correct: true },
+                    { name: "Tanpa Atribut Wajib", items: "Putih abu + sandal slop + tanpa atribut lokasi", correct: false },
+                    { name: "Mode Bebas Casual", items: "Hoodie kelas + celana cargo + topi bebas", correct: false }
+                ],
+                why: "Seragam harian harus bersih, rapi, dan dilengkapi atribut sekolah yang lengkap serta memakai sepatu sekolah hitam."
+            },
+            {
+                day: "RABU • PRAMUKA",
+                title: "Hari Kegiatan Pramuka",
+                prompt: "Hari ini adalah jadwal kegiatan Pramuka. Apa yang kamu kenakan?",
+                hint: "Kegiatan kepramukaan memiliki seragam khas dan atribut khusus.",
+                options: [
+                    { name: "Pramuka Lengkap", items: "Seragam Pramuka + setangan leher/hasduk + ring + kacu", correct: true },
+                    { name: "Putih Abu Biasa", items: "Seragam putih abu + dasi upacara", correct: false },
+                    { name: "Kaos Bebas", items: "Kaos komunitas + celana jeans", correct: false }
+                ],
+                why: "Saat hari Pramuka, wajib memakai seragam Pramuka lengkap beserta kacu/hasduk dan ring sesuai aturan kepramukaan."
+            },
+            {
+                day: "KAMIS • BATIK SEKOLAH",
+                title: "Kamis Penuh Identitas",
+                prompt: "Pilih seragam batik sekolah yang sesuai untuk hari Kamis.",
+                hint: "Batik sekolah adalah identitas almamater, bukan busana bebas.",
+                options: [
+                    { name: "Batik Resmi Sekolah", items: "Batik resmi sekolah + celana/rok abu + sepatu hitam", correct: true },
+                    { name: "Batik Bebas/Pesta", items: "Batik casual santai + celana jeans + sandal", correct: false },
+                    { name: "Jaket Angkatan", items: "Jaket kelas + celana bebas + sneakers neon", correct: false }
+                ],
+                why: "Gunakan batik khas identitas sekolah yang ditentukan dengan bawahan rapi dan sepatu hitam."
+            },
+            {
+                day: "JUMAT • OLAHRAGA & SEHAT",
+                title: "Gerak Sehat Sebelum Belajar",
+                prompt: "Kelengkapan apa yang aman dan sesuai untuk pelajaran PJOK/Olahraga?",
+                hint: "Mengutamakan kenyamanan bergerak dan keselamatan saat berolahraga.",
+                options: [
+                    { name: "Set Olahraga Sekolah", items: "Kaos & celana olahraga sekolah + sepatu olahraga", correct: true },
+                    { name: "Seragam Harian Formal", items: "Kemeja putih + dasi + sepatu pantofel", correct: false },
+                    { name: "Baju Bebas Ringan", items: "Kaos santai + sandal jepit", correct: false }
+                ],
+                why: "Seragam olahraga sekolah dirancang untuk menyerap keringat dan memberikan kebebasan bergerak secara aman."
+            },
+            {
+                day: "EKSTRA • ACARA SEKOLAH",
+                title: "Mewakili Duta Kelas",
+                prompt: "Kelasmu menjadi panitia acara sekolah. Apa pakaian yang menunjukkan kesiapan?",
+                hint: "Rapi adalah bentuk rasa hormat pada acara dan tamu sekolah.",
+                options: [
+                    { name: "Duta Tertib Class", items: "Seragam resmi sesuai jadwal + tanda panitia/name tag", correct: true },
+                    { name: "Asal Nyaman Bebas", items: "Baju bebas + name tag disemat di tas", correct: false },
+                    { name: "Kombinasi Bebas", items: "Atasan batik + celana olahraga + sandal", correct: false }
+                ],
+                why: "Menjadi perwakilan kelas memerlukan kedisiplinan berbusana resmi untuk menjaga nama baik almamater."
+            }
+        ];
+
+        let currentState = 'title';
+        let roundIndex = 0;
+        let score = 0;
+        let lives = 3;
+        let streak = 0;
+        let isAnswered = false;
+        let retryRound = false;
+        let currentShuffledOptions = [];
+        let showQuitModal = false;
+
+        let timeLeft = 15;
+        let timerInterval = null;
+
+        const charConfig = {
+            hairStyle: 'short',
+            skinTone: '#FFD5B3',
+            glasses: false,
+            ribbon: false,
+            playerName: 'Siswa Tertib'
+        };
+
+        const skinTones = [
+            { id: '#FFD5B3', name: 'Cerah' },
+            { id: '#E5A075', name: 'Sawo Matang' },
+            { id: '#9E6540', name: 'Gelap' }
+        ];
+
+        const hairStyles = [
+            { id: 'short', name: 'Pendek' },
+            { id: 'long', name: 'Panjang' },
+            { id: 'curly', name: 'Keriting' },
+            { id: 'hijab', name: 'Hijab' },
+            { id: 'peci', name: 'Peci' }
+        ];
+
+        const app = document.getElementById('app');
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        let audioCtx = null;
+        let isAudioMuted = false;
+        let bgmInterval = null;
+        let bgmStep = 0;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, duration, type = 'sine', volume = 0.15, gainRamp = true) {
+            if (isAudioMuted) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+                if (gainRamp) {
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                }
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.error("Audio playback error:", e);
+            }
+        }
+
+        function soundClick() {
+            playTone(600, 0.08, 'square', 0.12);
+        }
+
+        function soundCorrect() {
+            if (isAudioMuted) return;
+            playTone(523.25, 0.1, 'triangle', 0.25);
+            setTimeout(() => playTone(659.25, 0.1, 'triangle', 0.25), 80);
+            setTimeout(() => playTone(783.99, 0.12, 'triangle', 0.25), 160);
+            setTimeout(() => playTone(1046.50, 0.25, 'triangle', 0.3), 240);
+        }
+
+        function soundWrong() {
+            if (isAudioMuted) return;
+            playTone(220, 0.15, 'sawtooth', 0.25);
+            setTimeout(() => playTone(174.61, 0.3, 'sawtooth', 0.3), 120);
+        }
+
+        function soundVictory() {
+            if (isAudioMuted) return;
+            const notes = [440, 554.37, 659.25, 880];
+            notes.forEach((freq, idx) => {
+                setTimeout(() => playTone(freq, 0.2, 'triangle', 0.25), idx * 120);
+            });
+        }
+
+        function soundJumpscareGameOver() {
+            if (isAudioMuted) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            try {
+                const now = audioCtx.currentTime;
+                
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.4);
+
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.5);
+
+                setTimeout(() => {
+                    playTone(880, 0.3, 'sawtooth', 0.3);
+                    setTimeout(() => playTone(415.3, 0.4, 'sawtooth', 0.35), 100);
+                }, 50);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        const BGM_MELODY = [
+            261.63, 0, 329.63, 392.00, 261.63, 329.63, 0, 392.00,
+            293.66, 0, 349.23, 440.00, 293.66, 349.23, 0, 440.00
+        ];
+
+        function startBGM() {
+            if (bgmInterval) return;
+            bgmStep = 0;
+            bgmInterval = setInterval(() => {
+                if (!isAudioMuted && audioCtx && audioCtx.state === 'running') {
+                    const freq = BGM_MELODY[bgmStep % BGM_MELODY.length];
+                    if (freq > 0) {
+                        playTone(freq, 0.18, 'triangle', 0.12, true);
+                    }
+                }
+                bgmStep++;
+            }, 240);
+        }
+
+        function toggleAudio() {
+            initAudio();
+            isAudioMuted = !isAudioMuted;
+            const icon = document.getElementById('bgmIcon');
+            const label = document.getElementById('bgmLabel');
+
+            if (isAudioMuted) {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+                label.innerText = 'OFF';
+            } else {
+                icon.className = 'fa-solid fa-volume-high text-yellowAcc';
+                label.innerText = 'BGM';
+                soundClick();
+            }
+        }
+
+        function getMascotSVG(mood = 'ready') {
+            let mouth = '<path d="M40 68 Q50 78 60 68" stroke="#18233D" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+            let blush = '<circle cx="32" cy="62" r="4" fill="#E4574F" opacity="0.3"/><circle cx="68" cy="62" r="4" fill="#E4574F" opacity="0.3"/>';
+            
+            if (mood === 'wrong') {
+                mouth = '<path d="M40 72 Q50 64 60 72" stroke="#E4574F" stroke-width="4" fill="none" stroke-linecap="round"/>';
+                blush = '';
+            } else if (mood === 'happy') {
+                mouth = '<path d="M38 65 Q50 82 62 65 Z" fill="#E4574F"/>';
+            } else if (mood === 'jumpscare') {
+                mouth = '<ellipse cx="50" cy="72" rx="8" ry="10" fill="#E4574F"/>';
+                blush = '<circle cx="32" cy="62" r="6" fill="#E4574F" opacity="0.8"/><circle cx="68" cy="62" r="6" fill="#E4574F" opacity="0.8"/>';
+            }
+
+            let headFeature = '';
+            if (charConfig.hairStyle === 'short') {
+                headFeature = `
+                    <path d="M26 50 C26 28 74 28 74 50 C74 38 68 32 50 32 C32 32 26 38 26 50 Z" fill="#18233D"/>
+                    <path d="M30 42 Q40 34 52 40 Q65 32 70 44" stroke="#18233D" stroke-width="4" fill="none"/>
+                `;
+            } else if (charConfig.hairStyle === 'long') {
+                headFeature = `
+                    <path d="M22 45 C22 25 78 25 78 45 L82 78 C82 82 75 85 72 75 L74 50 C74 35 68 30 50 30 C32 30 26 35 26 50 L28 75 C25 85 18 82 18 78 Z" fill="#18233D"/>
+                    <path d="M30 42 Q40 34 52 40 Q65 32 70 44" stroke="#18233D" stroke-width="4" fill="none"/>
+                `;
+            } else if (charConfig.hairStyle === 'curly') {
+                headFeature = `
+                    <circle cx="30" cy="36" r="10" fill="#18233D"/>
+                    <circle cx="42" cy="30" r="11" fill="#18233D"/>
+                    <circle cx="58" cy="30" r="11" fill="#18233D"/>
+                    <circle cx="70" cy="36" r="10" fill="#18233D"/>
+                    <circle cx="25" cy="46" r="9" fill="#18233D"/>
+                    <circle cx="75" cy="46" r="9" fill="#18233D"/>
+                `;
+            } else if (charConfig.hairStyle === 'hijab') {
+                headFeature = `
+                    <path d="M22 48 C22 20 78 20 78 48 C78 78 68 86 50 86 C32 86 22 78 22 48 Z" fill="#3B82F6"/>
+                    <path d="M26 44 C26 24 74 24 74 44 Z" fill="#2563EB"/>
+                    <path d="M30 44 C30 35 70 35 70 44 C70 56 62 54 50 54 C38 54 30 56 30 44 Z" fill="${charConfig.skinTone}"/>
+                `;
+            } else if (charConfig.hairStyle === 'peci') {
+                headFeature = `
+                    <path d="M26 50 C26 34 74 34 74 50 Z" fill="#18233D"/>
+                    <rect x="30" y="24" width="40" height="14" rx="3" fill="#121B2D"/>
+                `;
+            }
+
+            let glassesAccessory = '';
+            if (charConfig.glasses) {
+                glassesAccessory = `
+                    <rect x="33" y="49" width="14" height="10" rx="2" stroke="#18233D" stroke-width="2.5" fill="none"/>
+                    <rect x="53" y="49" width="14" height="10" rx="2" stroke="#18233D" stroke-width="2.5" fill="none"/>
+                    <line x1="47" y1="54" x2="53" y2="54" stroke="#18233D" stroke-width="2.5"/>
+                `;
+            }
+
+            let ribbonAccessory = '';
+            if (charConfig.ribbon) {
+                ribbonAccessory = `
+                    <polygon points="68,26 78,20 74,30" fill="#E4574F"/>
+                    <polygon points="68,26 78,32 74,22" fill="#E4574F"/>
+                    <circle cx="68" cy="26" r="3" fill="#F5C85B"/>
+                `;
+            }
+
+            let eyeSize = mood === 'jumpscare' ? '5' : '3.5';
+
+            return `
+            <svg viewBox="0 0 100 110" class="w-full h-full drop-shadow-md">
+                <circle cx="50" cy="55" r="45" fill="#FFF6E5" opacity="0.15"/>
+                <path d="M22 95 L78 95 L70 70 L30 70 Z" fill="#FFFDF8"/>
+                <polygon points="50,70 44,82 50,98 56,82" fill="#F5C85B"/>
+                <polygon points="30,70 42,75 50,70" fill="#E2E8F0"/>
+                <polygon points="70,70 58,75 50,70" fill="#CBD5E1"/>
+
+                <circle cx="50" cy="52" r="24" fill="${charConfig.skinTone}"/>
+
+                ${headFeature}
+
+                <circle cx="40" cy="54" r="${eyeSize}" fill="#18233D"/>
+                <circle cx="60" cy="54" r="${eyeSize}" fill="#18233D"/>
+                <circle cx="41.5" cy="52.5" r="1.5" fill="#FFF"/>
+                <circle cx="61.5" cy="52.5" r="1.5" fill="#FFF"/>
+
+                <path d="M35 44 Q40 40 45 45" stroke="#18233D" stroke-width="2.5" fill="none"/>
+                <path d="M55 45 Q60 40 65 44" stroke="#18233D" stroke-width="2.5" fill="none"/>
+
+                ${glassesAccessory}
+                ${ribbonAccessory}
+
+                ${blush}
+                ${mouth}
+            </svg>
+            `;
+        }
+
+        function render() {
+            if (currentState === 'title') {
+                renderTitle();
+            } else if (currentState === 'play') {
+                renderPlay();
+            } else if (currentState === 'result') {
+                renderResult();
+            }
+        }
+
+        function renderTitle() {
+            if (timerInterval) clearInterval(timerInterval);
+
+            app.innerHTML = `
+                <div class="flex-1 flex flex-col justify-between space-y-4">
+                    <div class="flex items-center justify-between bg-navy2/60 p-3 rounded-xl border border-slate-700/50 backdrop-blur">
+                        <div class="flex items-center space-x-1.5">
+                            <span class="font-black text-lg tracking-wider text-paper">SERAGAM</span>
+                            <span class="font-black text-lg tracking-wider text-yellowAcc">QUEST</span>
+                        </div>
+                        <span class="text-[10px] bg-redAcc/20 text-redAcc font-bold px-2 py-1 rounded-md border border-redAcc/30">
+                            PBP • KELAS XII
+                        </span>
+                    </div>
+
+                    <div class="bg-navy2/90 border border-slate-700/70 rounded-2xl p-4 flex flex-col items-center text-center shadow-lg relative overflow-hidden space-y-3">
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-yellowAcc/10 rounded-full blur-xl pointer-events-none"></div>
+                        
+                        <div class="w-24 h-24 my-1 animate-pulse-glow">
+                            ${getMascotSVG('ready')}
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-bold text-yellowAcc tracking-widest uppercase block mb-0.5">
+                                MISI 01 &bull; KUSTOMISASI KARAKTER
+                            </span>
+                            <h1 class="text-xl font-black text-paper leading-tight">
+                                Sesuaikan Karaktermu!
+                            </h1>
+                        </div>
+
+                        <div class="w-full bg-navy/80 border border-slate-700/80 p-3 rounded-xl space-y-2.5 text-left text-xs">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 block mb-1">WARNA KULIT</label>
+                                <div class="flex space-x-2">
+                                    ${skinTones.map(tone => `
+                                        <button onclick="setSkinTone('${tone.id}')" class="flex-1 py-1.5 rounded-lg border btn-bounce flex items-center justify-center space-x-1 ${charConfig.skinTone === tone.id ? 'border-yellowAcc bg-yellowAcc/20 font-bold text-yellowAcc' : 'border-slate-700 bg-navy2 text-slate-300'}">
+                                            <span class="w-3 h-3 rounded-full inline-block border border-slate-500" style="background-color: ${tone.id}"></span>
+                                            <span class="text-[11px]">${tone.name}</span>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 block mb-1">GAYA RAMBUT / PENUTUP KEPALA</label>
+                                <div class="grid grid-cols-5 gap-1">
+                                    ${hairStyles.map(h => `
+                                        <button onclick="setHairStyle('${h.id}')" class="py-1.5 px-1 rounded-lg border text-center btn-bounce text-[10px] ${charConfig.hairStyle === h.id ? 'border-yellowAcc bg-yellowAcc/20 font-bold text-yellowAcc' : 'border-slate-700 bg-navy2 text-slate-300'}">
+                                            ${h.name}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 block mb-1">AKSESORI</label>
+                                <div class="flex space-x-2">
+                                    <button onclick="toggleAccessory('glasses')" class="flex-1 py-1.5 rounded-lg border text-center btn-bounce text-[11px] ${charConfig.glasses ? 'border-mintAcc bg-mintAcc/20 font-bold text-mintAcc' : 'border-slate-700 bg-navy2 text-slate-300'}">
+                                        <i class="fa-solid fa-glasses mr-1"></i> Kacamata
+                                    </button>
+                                    <button onclick="toggleAccessory('ribbon')" class="flex-1 py-1.5 rounded-lg border text-center btn-bounce text-[11px] ${charConfig.ribbon ? 'border-mintAcc bg-mintAcc/20 font-bold text-mintAcc' : 'border-slate-700 bg-navy2 text-slate-300'}">
+                                        <i class="fa-solid fa-ribbon mr-1"></i> Pita
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 block mb-1">NAMA KARAKTER / SISWA</label>
+                                <input 
+                                    type="text" 
+                                    id="customPlayerNameInput" 
+                                    value="${escapeHtml(charConfig.playerName)}" 
+                                    oninput="updatePlayerName(this.value)"
+                                    placeholder="Ketik nama kamu..." 
+                                    class="w-full bg-navy text-paper text-xs px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-yellowAcc"
+                                    maxlength="15"
+                                />
+                            </div>
+
+                        </div>
+
+                        <button onclick="startGame()" class="w-full btn-bounce bg-redAcc hover:bg-red-600 text-paper font-bold text-base py-3.5 px-6 rounded-xl shadow-lg border-b-4 border-red-800 flex items-center justify-center space-x-2">
+                            <span>MULAI MISI</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+
+                        <div class="flex items-center justify-center space-x-2 text-[11px] text-slate-400 flex-wrap">
+                            <span><i class="fa-solid fa-layer-group text-yellowAcc"></i> 6 Ronde</span>
+                            <span>&bull;</span>
+                            <span><i class="fa-solid fa-clock text-redAcc"></i> 15 Detik/Soal</span>
+                            <span>&bull;</span>
+                            <span><i class="fa-solid fa-heart text-redAcc"></i> 3 Nyawa</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="bg-cream text-ink p-3.5 rounded-xl border border-yellowAcc/50 shadow">
+                            <div class="flex items-center space-x-2 font-bold text-xs text-redAcc mb-1">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span>CARA BERMAIN</span>
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed">
+                                Baca konteks &rarr; pilih paket seragam dalam 15 detik &rarr; hindari kehabisan nyawa!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updatePlayerName(val) {
+            charConfig.playerName = val.trim() || 'Siswa Tertib';
+        }
+
+        function setSkinTone(tone) {
+            soundClick();
+            charConfig.skinTone = tone;
+            renderTitle();
+        }
+
+        function setHairStyle(style) {
+            soundClick();
+            charConfig.hairStyle = style;
+            renderTitle();
+        }
+
+        function toggleAccessory(acc) {
+            soundClick();
+            charConfig[acc] = !charConfig[acc];
+            renderTitle();
+        }
+
+        function renderPlay() {
+            const currentRound = ROUNDS[roundIndex];
+            const heartsText = Array(3).fill(0).map((_, i) => 
+                i < lives ? `<i class="fa-solid fa-heart text-redAcc"></i>` : `<i class="fa-regular fa-heart text-slate-600"></i>`
+            ).join(' ');
+
+            app.innerHTML = `
+                <div class="flex-1 flex flex-col justify-between space-y-3 relative">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <button onclick="promptQuit()" class="text-xs bg-navy2 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 btn-bounce flex items-center space-x-1">
+                                <i class="fa-solid fa-arrow-left"></i>
+                                <span>Keluar</span>
+                            </button>
+                            <span class="text-xs font-bold text-yellowAcc bg-navy2/80 px-2.5 py-1 rounded-md border border-slate-700">
+                                RONDE ${roundIndex + 1} / ${ROUNDS.length}
+                            </span>
+                        </div>
+
+                        <div class="bg-navy2/90 border border-slate-700/70 rounded-xl p-2.5 flex items-center justify-between text-xs font-bold shadow">
+                            <div class="flex items-center space-x-1.5 text-paper">
+                                <span class="text-slate-400">SKOR:</span>
+                                <span class="text-yellowAcc text-sm font-black">${String(score).padStart(4, '0')}</span>
+                            </div>
+                            <div class="flex items-center space-x-1 text-sm">
+                                ${heartsText}
+                            </div>
+                            <div id="timerDisplay" class="flex items-center space-x-1 ${timeLeft <= 5 ? 'text-redAcc animate-pulse' : 'text-yellowAcc'}">
+                                <i class="fa-solid fa-clock"></i>
+                                <span id="timeVal">${timeLeft}s</span>
+                            </div>
+                        </div>
+
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-yellowAcc h-full transition-all duration-300" style="width: ${((roundIndex) / ROUNDS.length) * 100}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-cream text-ink rounded-2xl p-4 shadow-md border border-yellowAcc/40 relative">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[11px] font-extrabold text-redAcc tracking-wider">
+                                ${currentRound.day}
+                            </span>
+                            <div class="w-10 h-10 -mr-1 -mt-1">
+                                ${getMascotSVG(isAnswered ? (retryRound ? 'wrong' : 'happy') : 'ready')}
+                            </div>
+                        </div>
+                        <h2 class="text-lg font-black leading-tight mb-1">
+                            ${currentRound.title}
+                        </h2>
+                        <p class="text-xs text-slate-800 font-medium mb-2 leading-relaxed">
+                            "${currentRound.prompt}"
+                        </p>
+                        <div class="bg-yellowAcc/20 text-slate-700 p-2 rounded-lg text-[11px] flex items-start space-x-1.5">
+                            <i class="fa-solid fa-lightbulb text-yellow-600 mt-0.5"></i>
+                            <span>${currentRound.hint}</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 flex-1 flex flex-col justify-center">
+                        <span class="text-[11px] font-bold text-slate-400 block tracking-wider uppercase text-center">
+                            PILIH PAKET SERAGAM YANG SESUAI
+                        </span>
+                        
+                        ${currentShuffledOptions.map((opt, idx) => `
+                            <button 
+                                onclick="handleAnswer(${idx})"
+                                ${isAnswered ? 'disabled' : ''}
+                                class="w-full btn-bounce text-left p-3.5 rounded-xl border transition-all duration-150 flex flex-col justify-center ${
+                                    isAnswered 
+                                    ? (opt.correct 
+                                        ? 'bg-emerald-900/40 border-mintAcc text-paper' 
+                                        : 'bg-navy2/40 border-slate-800 text-slate-500 opacity-60')
+                                    : 'bg-navy2 hover:bg-slate-800 border-slate-700 text-paper active:border-yellowAcc'
+                                }"
+                            >
+                                <span class="font-bold text-xs text-yellowAcc mb-0.5 block">
+                                    ${opt.name}
+                                </span>
+                                <span class="text-xs text-slate-300 leading-snug">
+                                    ${opt.items}
+                                </span>
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    ${isAnswered ? `
+                        <div class="p-3.5 rounded-xl border ${retryRound ? 'bg-red-950/90 border-redAcc text-paper' : 'bg-emerald-950/90 border-mintAcc text-paper'} space-y-2 animate-fade-in shadow-xl">
+                            <div class="flex items-center space-x-2 font-bold text-sm">
+                                <i class="fa-solid ${retryRound ? 'fa-circle-xmark text-redAcc' : 'fa-circle-check text-mintAcc'}"></i>
+                                <span>${retryRound ? (timeLeft === 0 ? 'WAKTU HABIS! (-1 NYAWA)' : 'BELUM TEPAT (-1 NYAWA)') : `BENAR! (+${100 + (streak - 1) * 25} POIN)`}</span>
+                            </div>
+                            <p class="text-xs text-slate-200 leading-relaxed">
+                                ${currentRound.why}
+                            </p>
+                            <button onclick="nextStep()" class="w-full btn-bounce py-2.5 px-4 ${retryRound ? 'bg-redAcc hover:bg-red-600' : 'bg-mintAcc hover:bg-emerald-500 text-navy'} font-bold rounded-lg text-xs flex items-center justify-center space-x-1">
+                                <span>${retryRound ? (lives > 0 ? 'COBA LAGI' : 'LIHAT HASIL') : 'LANJUTKAN'}</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+
+                    ${showQuitModal ? `
+                        <div class="absolute inset-0 bg-navy/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+                            <div class="bg-navy2 border border-slate-700 p-5 rounded-2xl w-full text-center space-y-4 shadow-2xl">
+                                <div class="w-12 h-12 bg-redAcc/20 text-redAcc border border-redAcc/30 rounded-full flex items-center justify-center mx-auto text-xl">
+                                    <i class="fa-solid fa-door-open"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-base font-bold text-paper mb-1">Keluar dari Misi?</h3>
+                                    <p class="text-xs text-slate-300">Kemajuan dan skor ronde ini tidak akan disimpan.</p>
+                                </div>
+                                <div class="flex space-x-2 pt-1">
+                                    <button onclick="cancelQuit()" class="flex-1 btn-bounce bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-2.5 rounded-xl border border-slate-700">
+                                        Batal
+                                    </button>
+                                    <button onclick="confirmQuit()" class="flex-1 btn-bounce bg-redAcc hover:bg-red-600 text-paper font-bold text-xs py-2.5 rounded-xl border border-red-800">
+                                        Ya, Keluar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderResult() {
+            if (timerInterval) clearInterval(timerInterval);
+            showQuitModal = false;
+            isAnswered = false;
+            retryRound = false;
+            const victory = lives > 0;
+            const history = getLeaderboard();
+
+            app.innerHTML = `
+                <div class="flex-1 flex flex-col justify-between space-y-4">
+                    <div class="flex items-center justify-between bg-navy2/60 p-3 rounded-xl border border-slate-700/50">
+                        <span class="font-bold text-sm text-paper">HASIL MISI</span>
+                        <span class="text-xs text-yellowAcc font-semibold">SERAGAM QUEST</span>
+                    </div>
+
+                    <div class="bg-cream text-ink rounded-2xl p-5 text-center shadow-lg border border-yellowAcc/50 space-y-3">
+                        <div class="w-20 h-20 mx-auto">
+                            ${getMascotSVG(victory ? 'happy' : 'jumpscare')}
+                        </div>
+
+                        <div>
+                            <h2 class="text-2xl font-black ${victory ? 'text-emerald-700' : 'text-redAcc'} mb-1">
+                                ${victory ? 'MISI SELESAI!' : 'NYAWA HABIS!'}
+                            </h2>
+                            <p class="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
+                                ${victory ? 'Selamat! Kamu telah membuktikan kepedulianmu terhadap budaya tertib sekolah.' : 'Karaktermu kaget! Nyawamu habis dan permainan berakhir.'}
+                            </p>
+                        </div>
+
+                        <div class="bg-navy p-3 rounded-xl text-paper border border-slate-700 inline-block w-full">
+                            <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">SKOR AKHIR</span>
+                            <span class="text-3xl font-black text-yellowAcc">${String(score).padStart(4, '0')}</span>
+                            <div class="text-[11px] text-slate-300 mt-1 flex justify-center space-x-3">
+                                <span>Ronde: ${roundIndex + (victory ? 0 : 1)}/${ROUNDS.length}</span>
+                                <span>Streak Max: ${streak}x</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-1">
+                            <button onclick="startGame()" class="w-full btn-bounce bg-redAcc hover:bg-red-600 text-paper font-bold text-sm py-3 px-4 rounded-xl shadow border-b-4 border-red-800">
+                                <i class="fa-solid fa-rotate-right mr-1.5"></i> MAIN LAGI
+                            </button>
+                            <button onclick="goHome()" class="w-full btn-bounce bg-navy2 hover:bg-slate-800 text-paper font-bold text-xs py-2.5 px-4 rounded-xl border border-slate-700">
+                                <i class="fa-solid fa-house mr-1.5"></i> BERANDA
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-navy2/90 border border-slate-700 p-4 rounded-2xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-yellowAcc tracking-wider uppercase">PAPAN SKOR LOKAL</span>
+                            <i class="fa-solid fa-trophy text-yellowAcc text-xs"></i>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <input 
+                                type="text" 
+                                id="playerName" 
+                                placeholder="Masukkan nama kamu..." 
+                                class="flex-1 bg-navy text-paper text-xs px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-yellowAcc"
+                                maxlength="15"
+                            />
+                            <button onclick="saveScore()" class="bg-mintAcc hover:bg-emerald-400 text-navy font-bold text-xs px-3 py-2 rounded-lg btn-bounce">
+                                Simpan
+                            </button>
+                        </div>
+
+                        <div class="space-y-1.5 text-xs max-h-36 overflow-y-auto pr-1">
+                            ${history.length === 0 ? '<p class="text-slate-400 text-[11px] italic text-center py-2">Belum ada skor tersimpan.</p>' : ''}
+                            ${history.map((item, idx) => `
+                                <div class="flex items-center justify-between p-2 rounded-lg bg-navy/60 border border-slate-800">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-bold text-yellowAcc w-4">${idx + 1}.</span>
+                                        <span class="font-semibold text-paper">${escapeHtml(item.name)}</span>
+                                    </div>
+                                    <span class="font-bold text-mintAcc">${item.score} pts</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startGame() {
+            soundClick();
+            initAudio();
+            startBGM();
+            if (timerInterval) clearInterval(timerInterval);
+            
+            const nameInput = document.getElementById('customPlayerNameInput');
+            if (nameInput) {
+                charConfig.playerName = nameInput.value.trim() || 'Siswa Tertib';
+            }
+
+            currentState = 'play';
+            roundIndex = 0;
+            score = 0;
+            lives = 3;
+            streak = 0;
+            isAnswered = false;
+            retryRound = false;
+            showQuitModal = false;
+
+            currentShuffledOptions = shuffleArray(ROUNDS[roundIndex].options);
+            render();
+            startRoundTimer();
+        }
+
+        function startRoundTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timeLeft = 15;
+
+            timerInterval = setInterval(() => {
+                if (isAnswered) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                timeLeft--;
+                const timeEl = document.getElementById('timeVal');
+                const timerDisplay = document.getElementById('timerDisplay');
+                if (timeEl) timeEl.innerText = timeLeft + 's';
+
+                if (timeLeft <= 5 && timerDisplay) {
+                    timerDisplay.className = 'flex items-center space-x-1 text-redAcc animate-pulse';
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function handleTimeOut() {
+            if (isAnswered) return;
+            isAnswered = true;
+            lives--;
+            streak = 0;
+            retryRound = true;
+            soundWrong();
+            if (lives <= 0) {
+                currentState = 'result';
+                soundJumpscareGameOver();
+            }
+            render();
+        }
+
+        function promptQuit() {
+            soundClick();
+            showQuitModal = true;
+            render();
+        }
+
+        function cancelQuit() {
+            soundClick();
+            showQuitModal = false;
+            render();
+        }
+
+        function confirmQuit() {
+            soundClick();
+            if (timerInterval) clearInterval(timerInterval);
+            showQuitModal = false;
+            goHome();
+        }
+
+        function goHome() {
+            soundClick();
+            if (timerInterval) clearInterval(timerInterval);
+            currentState = 'title';
+            render();
+        }
+
+        function handleAnswer(shuffledIndex) {
+            if (isAnswered) return;
+
+            if (timerInterval) clearInterval(timerInterval);
+            initAudio();
+            isAnswered = true;
+            const selectedOpt = currentShuffledOptions[shuffledIndex];
+
+            if (selectedOpt.correct) {
+                streak++;
+                const bonus = 100 + (streak - 1) * 25;
+                score += bonus;
+                retryRound = false;
+                soundCorrect();
+            } else {
+                lives--;
+                streak = 0;
+                retryRound = true;
+                soundWrong();
+                if (lives <= 0) {
+                    currentState = 'result';
+                    soundJumpscareGameOver();
+                }
+            }
+
+            render();
+        }
+
+        function nextStep() {
+            soundClick();
+            if (retryRound) {
+                if (lives <= 0) {
+                    currentState = 'result';
+                    soundJumpscareGameOver();
+                } else {
+                    isAnswered = false;
+                    retryRound = false;
+                    currentShuffledOptions = shuffleArray(ROUNDS[roundIndex].options);
+                    render();
+                    startRoundTimer();
+                }
+            } else {
+                roundIndex++;
+                if (roundIndex >= ROUNDS.length) {
+                    currentState = 'result';
+                    soundVictory();
+                } else {
+                    isAnswered = false;
+                    retryRound = false;
+                    currentShuffledOptions = shuffleArray(ROUNDS[roundIndex].options);
+                    startRoundTimer();
+                }
+                render();
+            }
+        }
+
+        function getLeaderboard() {
+            try {
+                const data = localStorage.getItem('seragam_quest_scores_v4');
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveScore() {
+            soundClick();
+            const input = document.getElementById('playerName');
+            const name = (input && input.value.trim()) ? input.value.trim() : charConfig.playerName;
+            
+            const history = getLeaderboard();
+            history.push({ name: name, score: score, date: new Date().toLocaleDateString() });
+            history.sort((a, b) => b.score - a.score);
+            
+            const trimmed = history.slice(0, 5);
+            try {
+                localStorage.setItem('seragam_quest_scores_v4', JSON.stringify(trimmed));
+            } catch (e) {}
+
+            renderResult();
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+
+        render();
+    </script>
+</body>
+</html>
